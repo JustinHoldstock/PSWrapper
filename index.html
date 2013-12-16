@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        
+        <script type="text/javascript" src="js/audioRecorder.js"></script>
+        <script type="text/javascript" src="js/CallbackManager.js"></script>
+        <script type="text/javascript" src="js/SphinxTest.js"></script>
+
+        <title>PocketSphinxTest</title>
+    </head>
+    <body>
+      <button id="toggle" onclick="toggle()">Turn ON</button>
+      <div>
+        <img src="chicken.png" id="CHICKEN"/>
+        <img src="duck.png" id="DUCK"/>
+        <img src="monkey.png" id="MONKEY"/>
+      </div>
+      <script type="text/javascript">
+        var ps = new PSphinx();
+        var isOn = false;
+
+        var words = [
+          ["CHICKEN", "CH IH K EH N"],
+          ["MONKEY", "M AH N K IY"],
+          ["DUCK", "D AH K"]
+        ];
+
+        var grammar_0 = {
+          numStates: 1, 
+          start: 0, 
+          end: 0, 
+          transitions: [
+            {from: 0, to: 0, word: "CHICKEN" },
+            {from: 0, to: 0, word: "MONKEY" },
+            {from: 0, to: 0, word: "DUCK" },
+            {from: 0, to: 0 }
+          ]};
+
+
+        var grammar_1 = {
+          numStates: 1, 
+          start: 0, 
+          end: 0, 
+          transitions: [
+            {from: 0, to: 0, word: "CHICKEN" },
+            {from: 0, to: 0, logp: 0.5, word: "MONKEY" },
+            {from: 0, to: 0, word: "DUCK" },
+            {from: 0, to: 0 }
+          ]};
+
+
+        var grammar_2 = {
+          numStates: 1, 
+          start: 0, 
+          end: 0, 
+          transitions: [
+            {from: 0, to: 0, word: "CHICKEN" },
+            {from: 0, to: 0, word: "MONKEY" },
+            {from: 0, to: 0, logp: 0.5, word: "DUCK" },
+            {from: 0, to: 0 }
+          ]};
+
+          //grammars that favor one word over another
+          var grammars = [{ title : "Chicken", g : grammar_0 }, { title: "Moneky", g : grammar_1 }, { title : "Duck", g : grammar_2 }];
+        
+        //define the initialization of words and grammars
+        ps.init = function(){
+          ps.addWords(words);
+          ps.addGrammar(grammar_0);
+        };
+
+        //start the app, create workers
+        ps.startup();
+
+        function toggle(){
+          if(isOn){
+            turnOff();
+          }
+          else{
+            turnOn();
+          }
+        }
+
+        function turnOn(){
+
+            document.getElementById('toggle').innerHTML = "Turn OFF";
+            isOn = true;
+            ps.start();
+
+            document.getElementById("DUCK").style.visibility = "hidden";
+            document.getElementById("CHICKEN").style.visibility = "hidden";
+            document.getElementById("MONKEY").style.visibility = "hidden";
+        }
+
+        function turnOff(){
+
+            document.getElementById('toggle').innerHTML = "Turn ON";
+            isOn = false;
+            ps.end();
+        }
+
+        function displayImage(imageID) {
+          if(document.getElementById(imageID)) document.getElementById(imageID).style.visibility = "visible";
+        }
+
+      </script>
+      <div id="hyp"></div>
+
+    </body>
+</html>

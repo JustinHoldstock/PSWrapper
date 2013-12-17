@@ -39,22 +39,9 @@ PSphinx.prototype.startup = function(_workerPath){
 
 PSphinx.prototype.spawnWorker = function(divID, onReady){
 
-	// URL.createObjectURL
-	window.URL = window.URL || window.webkitURL;
+	var url = this.createURLFromContent(divID);
 
-	// "Server response", used in all examples
-	var response = this.getDivContent(divID);
-
-	var blob;
-	try {
-	    blob = new Blob([response], { type : 'application/javascript' } );
-	} catch (e) { // Backwards-compatibility
-	    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
-	    blob = new BlobBuilder();
-	    blob.append(response);
-	    blob = blob.getBlob();
-	}
-	var worker = new Worker(URL.createObjectURL(blob));
+	var worker = new Worker(url);
 
 
 	//var worker = new Worker("js/recognizer.js");
@@ -202,6 +189,28 @@ PSphinx.prototype.getDivContent = function (id){
 	return source;
 };
 
+PSphinx.prototype.createURLFromContent = function(divID){
+
+		// URL.createObjectURL
+	window.URL = window.URL || window.webkitURL;
+
+	// "Server response", used in all examples
+	var response = this.getDivContent(divID);
+
+	var blob;
+	try {
+	    blob = new Blob([response], { type : 'application/javascript' } );
+	} catch (e) { // Backwards-compatibility
+	    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+	    blob = new BlobBuilder();
+	    blob.append(response);
+	    blob = blob.getBlob();
+	}
+
+	return URL.createObjectURL(blob)
+};
+//
+
 /*------------------------PRESENT DATA----------------------------*/
 
 PSphinx.prototype.finalizeHyp = function(hypothesis, final){
@@ -236,11 +245,12 @@ PSphinx.prototype.setupAudio = function(){
 
 	var recorder;
 	var that = this;
+	var config = { worker : this.getDivContent('audioRecorderWorker.js')} ;
 
 	//callback once the user authorizes access to the mic
 	function startUserMedia(stream){
 		var input = audioContext.createMediaStreamSource(stream);
-		recorder = new AudioRecorder(input);
+		recorder = new AudioRecorder(input, config);
 
 		//add the recognizer as the consumer
 		if(that.m_Recognizer) recorder.consumers.push(that.m_Recognizer);

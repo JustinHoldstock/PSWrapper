@@ -245,7 +245,7 @@ PSphinx.prototype.setupAudio = function(){
 
 	var recorder;
 	var that = this;
-	var config = { worker : this.getDivContent('audioRecorderWorker.js')} ;
+	var config = { worker : this.createURLFromContent('audioRecorderWorker.js')} ;
 
 	//callback once the user authorizes access to the mic
 	function startUserMedia(stream){

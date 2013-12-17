@@ -22,13 +22,13 @@ PSphinx.prototype.init = function(){
 };
 
 /* ----------------------------------- Initialization of Application---------------------------------  */
-PSphinx.prototype.startup = function(){
+PSphinx.prototype.startup = function(_workerPath){
 	this.m_CBManager = new CallbackManager();
 	this.m_Hypothesis = [];
 
 	var that = this;
 
-	this.spawnWorker('js/recognizer.js', function(recognizer){
+	this.spawnWorker(_workerPath, function(recognizer){
 
 		that.m_Recognizer = recognizer;
 		that.m_Recognizer.onmessage = function(event){ that.onMessage(event) };

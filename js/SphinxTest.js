@@ -37,16 +37,35 @@ PSphinx.prototype.startup = function(_workerPath){
 	});
 };
 
-PSphinx.prototype.spawnWorker = function(url, onReady){
-	var recognizer = new Worker(url);
+PSphinx.prototype.spawnWorker = function(divID, onReady){
 
-	recognizer.onmessage = function(event){
+	// URL.createObjectURL
+	window.URL = window.URL || window.webkitURL;
+
+	// "Server response", used in all examples
+	var response = this.getDivContent(divID);
+
+	var blob;
+	try {
+	    blob = new Blob([response], { type : 'application/javascript' } );
+	} catch (e) { // Backwards-compatibility
+	    window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+	    blob = new BlobBuilder();
+	    blob.append(response);
+	    blob = blob.getBlob();
+	}
+	var worker = new Worker(URL.createObjectURL(blob));
+
+
+	//var worker = new Worker("js/recognizer.js");
+
+	worker.onmessage = function(event){
 		//on ready called when message is sent back
-		onReady(recognizer);
+		onReady(worker);
 	};
 
-	recognizer.postMessage("");
-
+	worker.postMessage("");
+  //*/  
 };
 
 PSphinx.prototype.readyUp = function(){
@@ -162,6 +181,25 @@ PSphinx.prototype.checkHypothesis = function(data){
 	if(data.hasOwnProperty('final')) isFinal = data.final;
 
 	this.finalizeHyp(hyp, isFinal);
+};
+
+PSphinx.prototype.getDivContent = function (id){
+	var script = document.getElementById(id);
+	var source = "";
+
+	if(!script) return console.log("Could not find script in page");
+
+	var current = script.firstChild;
+
+	while(current){
+		if(current.nodeType === current.TEXT_NODE){
+			source += current.textContent;
+		}
+
+		current = current.nextSibling;
+	}
+
+	return source;
 };
 
 /*------------------------PRESENT DATA----------------------------*/
